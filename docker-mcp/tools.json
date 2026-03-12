@@ -1,0 +1,30 @@
+[
+  {
+    "name": "web_screenshot",
+    "description": "Take a screenshot of a web page. If a URL is provided, navigates there first. Returns a PNG image."
+  },
+  {
+    "name": "web_navigate",
+    "description": "Navigate the browser to a URL. The browser keeps cookies and state across tool calls."
+  },
+  {
+    "name": "web_click",
+    "description": "Click an element on the current web page by CSS selector or visible text."
+  },
+  {
+    "name": "web_type",
+    "description": "Type text into an input or textarea. Target by CSS selector or placeholder text."
+  },
+  {
+    "name": "web_select",
+    "description": "Select an option from a <select> dropdown on the current web page."
+  },
+  {
+    "name": "web_wait",
+    "description": "Wait for an element or text to appear/disappear on the page."
+  },
+  {
+    "name": "web_get_info",
+    "description": "Get information about the current web page: URL, title, visible text, and links."
+  }
+]

@@ -1,0 +1,35 @@
+name: lucitra-mcp-browser
+image: mcp/lucitra-mcp-browser
+type: server
+meta:
+  category: browser-automation
+  tags:
+    - browser
+    - automation
+    - playwright
+    - screenshot
+    - web
+about:
+  title: Browser Automation
+  description: >
+    Playwright-based browser automation for AI agents.
+    Navigate pages, click elements, fill forms, take screenshots, and extract page content.
+    Persistent browser session with cookie/state preservation across tool calls.
+  icon: https://avatars.githubusercontent.com/u/160254156?s=200&v=4
+source:
+  project: https://github.com/lucitra/mcp-browser
+config:
+  description: Configure browser behavior
+  env:
+    - name: CDP_PORT
+      example: "9222"
+      description: Chrome DevTools Protocol port to connect to an existing Chrome instance
+    - name: BROWSER_HEADLESS
+      example: "true"
+      description: Run browser in headless mode (default true)
+    - name: BROWSER_VIEWPORT_WIDTH
+      example: "1280"
+      description: Browser viewport width (default 1280)
+    - name: BROWSER_VIEWPORT_HEIGHT
+      example: "720"
+      description: Browser viewport height (default 720)

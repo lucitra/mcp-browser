@@ -1,0 +1,46 @@
+{
+  "name": "@lucitra/mcp-browser",
+  "version": "0.1.0",
+  "description": "MCP server for browser automation via Playwright — navigate, click, type, screenshot, and inspect web pages.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-browser": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "browser",
+    "playwright",
+    "automation",
+    "screenshot",
+    "web"
+  ],
+  "author": "Lucitra <hello@lucitra.ai>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucitra/mcp-browser"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "playwright": "^1.50.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.7.0"
+  }
+}
