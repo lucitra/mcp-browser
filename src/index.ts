@@ -31,4 +31,4 @@ registerAllTools(server)
 
 const transport = new StdioServerTransport()
 await server.connect(transport)
-console.error('mcp-browser server running on stdio')
+console.error(`mcp-browser v${pkg.version} running on stdio`)
