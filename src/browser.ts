@@ -19,6 +19,7 @@
  *   BROWSER_VIEWPORT_HEIGHT — Viewport height (default: 720)
  */
 
+import { execFileSync } from 'node:child_process'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import type { Browser, BrowserContext, Page } from 'playwright'
@@ -35,6 +36,35 @@ let browser: Browser | null = null
 let page: Page | null = null
 let launching: Promise<Page> | null = null
 let connectedViaCDP = false
+let chromiumInstallAttempted = false
+
+function isMissingBrowserError(msg: string): boolean {
+  return (
+    msg.includes('Executable doesn') ||
+    msg.includes('browserType.launch') ||
+    msg.includes('browserType.launchPersistentContext') ||
+    msg.includes('PLAYWRIGHT_BROWSERS_PATH')
+  )
+}
+
+async function ensureChromium(): Promise<void> {
+  if (chromiumInstallAttempted) return
+  chromiumInstallAttempted = true
+
+  console.error('[mcp-browser] Chromium not found — installing automatically...')
+  try {
+    execFileSync('npx', ['--yes', 'playwright', 'install', 'chromium'], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 120_000,
+    })
+    console.error('[mcp-browser] Chromium installed successfully')
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new Error(
+      `Failed to auto-install Chromium. Install manually: npx playwright install chromium\n${msg}`
+    )
+  }
+}
 
 async function connectCDP(): Promise<Page | null> {
   let chromium: typeof import('playwright').chromium
@@ -100,8 +130,17 @@ async function launchWithProfile(): Promise<Page> {
       return launchFresh(chromium)
     }
 
-    if (msg.includes('Executable doesn') || msg.includes('browserType.launch')) {
-      throw new Error('Chromium not found. Run: npx playwright install chromium')
+    if (isMissingBrowserError(msg)) {
+      await ensureChromium()
+      // Retry once after install
+      const context = await chromium.launchPersistentContext(PROFILE_DIR, {
+        headless: HEADLESS,
+        viewport: VIEWPORT,
+      })
+      browser = null
+      page = context.pages()[0] || (await context.newPage())
+      console.error(`[mcp-browser] Launched Chromium with profile: ${PROFILE_DIR}`)
+      return page
     }
 
     throw err
@@ -113,10 +152,12 @@ async function launchFresh(chromium: typeof import('playwright').chromium): Prom
     browser = await chromium.launch({ headless: HEADLESS })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    if (msg.includes('Executable doesn') || msg.includes('browserType.launch')) {
-      throw new Error('Chromium not found. Run: npx playwright install chromium')
+    if (isMissingBrowserError(msg)) {
+      await ensureChromium()
+      browser = await chromium.launch({ headless: HEADLESS })
+    } else {
+      throw err
     }
-    throw err
   }
 
   const context = await browser.newContext({ viewport: VIEWPORT })

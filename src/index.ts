@@ -1,6 +1,13 @@
+import { createRequire } from 'node:module'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import updateNotifier from 'update-notifier'
 import { registerAllTools } from './tools.js'
+
+const require = createRequire(import.meta.url)
+const pkg = require('../package.json')
+
+updateNotifier({ pkg }).notify({ isGlobal: true })
 
 // Re-export for library usage
 export { getPage } from './browser.js'
@@ -17,7 +24,7 @@ export {
 
 const server = new McpServer({
   name: 'mcp-browser',
-  version: '0.1.0',
+  version: pkg.version,
 })
 
 registerAllTools(server)

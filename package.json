@@ -1,6 +1,6 @@
 {
   "name": "@lucitra/mcp-browser",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "MCP server for browser automation via Playwright — navigate, click, type, screenshot, and inspect web pages.",
   "type": "module",
   "main": "dist/index.js",
@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/index.ts",
+    "postinstall": "npx --yes playwright install chromium 2>/dev/null || true",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -35,10 +36,12 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
     "playwright": "^1.50.0",
+    "update-notifier": "^7.3.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "@types/update-notifier": "^6.0.8",
     "tsup": "^8.0.1",
     "tsx": "^4.7.0",
     "typescript": "^5.7.0"
