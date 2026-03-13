@@ -1,6 +1,32 @@
 import { z } from 'zod'
+import { writeFile, mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+import { execFile } from 'node:child_process'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { getPage } from './browser.js'
+
+const SCREENSHOT_DIR = join(process.env.HOME || tmpdir(), '.lucitra', 'screenshots')
+
+/** Open a file in VSCode via macOS LaunchServices (works from background processes) */
+function openInEditor(filePath: string) {
+  execFile('open', ['-a', 'Visual Studio Code', filePath], (err) => {
+    if (err) {
+      // Fallback: open with default app
+      execFile('open', [filePath], (err2) => {
+        if (err2) console.error(`[openInEditor] failed: ${err2.message}`)
+      })
+    }
+  })
+}
+
+async function saveAndOpen(pngBuffer: Buffer, prefix: string): Promise<string> {
+  await mkdir(SCREENSHOT_DIR, { recursive: true })
+  const filePath = join(SCREENSHOT_DIR, `${prefix}-${Date.now()}.png`)
+  await writeFile(filePath, pngBuffer)
+  openInEditor(filePath)
+  return filePath
+}
 
 export function registerScreenshotTool(server: McpServer) {
   server.tool(
@@ -21,14 +47,19 @@ export function registerScreenshotTool(server: McpServer) {
           await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
         }
 
-        const pngBuffer = await page.screenshot({ type: 'png', fullPage: false })
+        const pngBuffer = Buffer.from(await page.screenshot({ type: 'png', fullPage: false }))
+        const filePath = await saveAndOpen(pngBuffer, 'web')
 
         return {
           content: [
             {
               type: 'image' as const,
-              data: Buffer.from(pngBuffer).toString('base64'),
+              data: pngBuffer.toString('base64'),
               mimeType: 'image/png' as const,
+            },
+            {
+              type: 'text' as const,
+              text: `Screenshot saved: ${filePath}`,
             },
           ],
         }
